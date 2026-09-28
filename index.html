@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRT Monthly Reporting</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Google Sans', Roboto, Arial, sans-serif;
+  background: #f8f9fa;
+  color: #202124;
+  padding: 24px 16px 60px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.form-wrap { max-width: 860px; margin: 0 auto; }
+
+/* Header */
+.form-header {
+  background: #fff;
+  border-top: 10px solid #22378C;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+.form-header h1 { font-size: 24px; font-weight: 400; color: #202124; margin-bottom: 4px; }
+.form-header p { font-size: 13px; color: #5f6368; }
+.form-header .intro { font-size: 13px; color: #3c4043; margin-top: 12px; line-height: 1.6; }
+
+/* Cards */
+.card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+.section-title {
+  font-size: 16px;
+  color: #22378C;
+  font-weight: 500;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Questions */
+.q-block { margin-bottom: 24px; }
+.q-block:last-child { margin-bottom: 0; }
+.q-label { font-size: 14px; color: #202124; margin-bottom: 6px; font-weight: 400; }
+.q-label .req { color: #d93025; }
+.q-hint { font-size: 13.5px; color: #5f6368; margin-bottom: 10px; margin-top: -2px; line-height: 1.5; }
+
+/* Radio */
+.radio-group { display: flex; flex-direction: column; gap: 6px; }
+.radio-opt { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #202124; cursor: pointer; padding: 4px 0; }
+.radio-opt input { accent-color: #22378C; width: 16px; height: 16px; flex-shrink: 0; }
+
+/* Inputs */
+input[type=text], input[type=number], input[type=url], select {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #80868b;
+  padding: 6px 0;
+  font-size: 14px;
+  color: #202124;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  transition: border-color .15s;
+}
+input[type=text]:focus, input[type=number]:focus, input[type=url]:focus, select:focus {
+  border-bottom: 2px solid #1a73e8;
+}
+input[type=number] { max-width: 120px; }
+/* Spinner arrows removed: a tester in the weekly form thought they were required. */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 84px;
+  resize: none;
+  overflow: hidden;
+  border: 1.5px solid #dadce0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #202124;
+  background: #fafafa;
+  line-height: 1.7;
+  outline: none;
+  transition: border-color .15s, background .15s;
+  box-sizing: border-box;
+}
+textarea:focus { border-color: #1a73e8; background: #fff; box-shadow: 0 0 0 3px rgba(26,115,232,.1); }
+textarea::placeholder { color: #9aa0a6; }
+
+.period-row { display: flex; gap: 20px; flex-wrap: wrap; max-width: 420px; }
+.period-row > div { flex: 1; min-width: 130px; }
+.period-note { margin-top: 10px; font-size: 13px; color: #5f6368; }
+.period-note strong { color: #202124; }
+
+/* Conditional block */
+.conditional {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: #f8f9fa;
+  border-left: 3px solid #dadce0;
+  border-radius: 0 4px 4px 0;
+  display: none;
+}
+.conditional.visible { display: block; }
+
+/* Situation cards */
+.sit-card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px 18px; margin-bottom: 14px; background: #fff; }
+.sit-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.sit-title { font-size: 13px; font-weight: 500; color: #22378C; }
+.sit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px; }
+.sit-grid.single { grid-template-columns: 1fr; }
+@media (max-width: 600px) { .sit-grid { grid-template-columns: 1fr; } }
+.sit-field { margin-bottom: 14px; }
+.sit-field:last-child { margin-bottom: 0; }
+.sit-label { font-size: 13px; color: #202124; margin-bottom: 4px; }
+.sit-label .req { color: #d93025; }
+.remove-btn { background: none; border: none; color: #d93025; cursor: pointer; padding: 2px 6px; font-size: 16px; border-radius: 4px; line-height: 1; }
+.remove-btn:hover { background: #fce8e6; }
+.add-btn {
+  display: flex; align-items: center; gap: 6px; font-size: 13px;
+  color: #1a73e8; background: none; border: none; cursor: pointer;
+  padding: 8px 4px; border-radius: 4px; margin-top: 4px;
+}
+.add-btn:hover { background: #e8f0fe; }
+.count-note { font-size: 12.5px; color: #5f6368; margin-top: 6px; }
+
+/* Submit */
+.submit-btn {
+  background: #22378C; color: #fff; border: none;
+  padding: 12px 32px; border-radius: 4px; font-size: 15px;
+  cursor: pointer; transition: background .15s; margin-top: 8px;
+}
+.submit-btn:hover { background: #1a2f75; }
+.submit-btn:disabled { background: #80868b; cursor: not-allowed; }
+
+/* Errors */
+.error-msg { font-size: 12px; color: #d93025; margin-top: 4px; display: none; }
+.field-error { border-bottom-color: #d93025 !important; }
+textarea.field-error { border-color: #d93025 !important; }
+.form-errors { display: none; margin-top: 12px; padding: 10px 14px; background: #fce8e6; color: #a50e0e; border-radius: 6px; font-size: 13px; }
+
+/* Success */
+.success-screen {
+  display: none; background: #fff; border-radius: 8px;
+  padding: 40px 32px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+.success-screen.visible { display: block; }
+.success-icon { font-size: 48px; margin-bottom: 16px; color: #137333; }
+.success-title { font-size: 22px; color: #137333; margin-bottom: 8px; }
+.success-sub { font-size: 14px; color: #5f6368; line-height: 1.6; }
+
+/* Progress bar */
+.progress-wrap { background: #e0e0e0; height: 4px; border-radius: 2px; margin-bottom: 20px; }
+.progress-bar { background: #22378C; height: 100%; border-radius: 2px; transition: width .3s; }
+
+/* Spinner */
+.spinner { display: none; width: 20px; height: 20px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin .6s linear infinite; margin-left: 8px; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="form-wrap" id="form-wrap">
+
+  <div class="form-header">
+    <h1>CRT Monthly Reporting</h1>
+    <p>Conflict Resolution Program &nbsp;·&nbsp; Community Resilience Teams</p>
+    <p class="intro">
+      Thank you for reporting. This form captures the times you or your team helped calm, mediate,
+      or redirect a disagreement or tension &mdash; in families, workplaces, communities, or public life.
+      List each situation <strong>separately</strong>: every one you enter counts as one intervention
+      in the network totals. If nothing came up this month, choose <strong>No</strong> in Section 2 &mdash;
+      that is useful information, and different from a missing report. You do not need to name the
+      people involved; describe the situation rather than the individuals.
+    </p>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+
+  <form id="main-form" novalidate onsubmit="return false;">
+
+    <!-- SECTION 1 -->
+    <div class="card">
+      <div class="section-title">Section 1 &mdash; About This Report</div>
+
+      <div class="q-block">
+        <div class="q-label">Q1 &nbsp; Which state is your team in? <span class="req">*</span></div>
+        <div class="radio-group" id="q-state"></div>
+        <div class="error-msg" id="err-state">Please select your state.</div>
+      </div>
+
+      <div class="q-block" id="area-block" style="display:none;">
+        <div class="q-label">Q2 &nbsp; Which team (area)? <span class="req">*</span></div>
+        <div class="radio-group" id="q-area"></div>
+        <div class="error-msg" id="err-area">Please select your team.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-label">Q3 &nbsp; This report covers the activity of: <span class="req">*</span></div>
+        <div class="radio-group" id="q-scope">
+          <label class="radio-opt"><input type="radio" name="scope" value="individual"> Myself &mdash; the situations I personally helped with</label>
+          <label class="radio-opt"><input type="radio" name="scope" value="team"> My whole team &mdash; I am summarizing for the group</label>
+        </div>
+        <div class="error-msg" id="err-scope">Please tell us whose activity this report covers.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-label">Q4 &nbsp; Your name <span class="req">*</span></div>
+        <div class="q-hint">The person filling out this form.</div>
+        <input type="text" id="submitter" placeholder="e.g. Jane Doe" autocomplete="name" style="max-width:320px">
+        <div class="error-msg" id="err-name">Please enter your name.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-label">Q5 &nbsp; Which month are you reporting on? <span class="req">*</span></div>
+        <div class="period-row">
+          <div><select id="rep-month"></select></div>
+          <div><select id="rep-year"></select></div>
+        </div>
+        <div class="period-note" id="period-note"></div>
+        <div class="error-msg" id="err-month">That month has not started yet &mdash; please choose the month you are reporting on.</div>
+      </div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="card">
+      <div class="section-title">Section 2 &mdash; Conflict-Mitigation Activity</div>
+
+      <div class="q-block">
+        <div class="q-label">Q6 &nbsp; <span id="gate-label">Did you help calm, mediate, or redirect any conflict or tension this month?</span> <span class="req">*</span></div>
+        <div class="radio-group">
+          <label class="radio-opt"><input type="radio" name="gate" value="yes"> Yes</label>
+          <label class="radio-opt"><input type="radio" name="gate" value="no"> No &mdash; nothing came up this month</label>
+        </div>
+        <div class="error-msg" id="err-gate">Please choose Yes or No.</div>
+
+        <div class="conditional" id="situations-block">
+          <div class="q-hint">One card per situation. Each card counts as one intervention.</div>
+          <div id="sit-list"></div>
+          <button type="button" class="add-btn" onclick="addSituation()">+ Add another situation</button>
+          <div class="count-note" id="count-note"></div>
+          <div class="error-msg" id="err-situations">Please complete every field marked * in each situation.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3 -->
+    <div class="card">
+      <div class="section-title">Section 3 &mdash; Anything Else</div>
+
+      <div class="q-block">
+        <div class="q-label">Q7 &nbsp; Other notable events or developments</div>
+        <div class="q-hint">Optional. Convenings, trainings, new members or partners, or anything else worth recording that is not a specific situation above.</div>
+        <textarea id="other-notable" placeholder="Anything else worth recording…"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-label">Q8 &nbsp; Supporting link</div>
+        <div class="q-hint">Optional. An article, post, or document related to anything above.</div>
+        <input type="url" id="supporting-link" placeholder="https://" style="max-width:480px">
+        <div class="error-msg" id="err-link">Please enter a full web address starting with http:// or https://</div>
+      </div>
+    </div>
+
+    <div class="form-errors" id="form-errors"></div>
+    <button type="button" class="submit-btn" id="submit-btn" onclick="submitForm()">Submit Report <span class="spinner" id="submit-spinner"></span></button>
+    <div id="submit-wait-msg" style="display:none;font-size:13px;color:#5f6368;margin-top:10px;"></div>
+  </form>
+
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">&#10003;</div>
+    <div class="success-title">Report submitted successfully</div>
+    <div class="success-sub" id="success-details"></div>
+    <button type="button" class="submit-btn" style="margin-top:24px" onclick="window.location.reload()">Submit another report</button>
+  </div>
+
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-9DRZ2MVqCe7DZZqDCNGII_3aGZKgE5WsIJ3lsOVF4ikxtH4jcwUti-XUNySOgZ4I/exec';
+
+// State -> its CRT areas. To add a team, add it here and nowhere else.
+// "Wisconsin (statewide)" is a placeholder: the old Alchemer export listed
+// no area for Wisconsin. Rename it here (and in Supabase) once the real name is confirmed.
+const CRT_AREAS = {
+  'Florida':        ['Miami-Dade', 'Suncoast', 'Tallahassee'],
+  'North Carolina': ['Rowan'],
+  'Wisconsin':      ['Wisconsin (statewide)'],
+};
+const INTERVENTION_TYPES = [
+  'Family or friends',
+  'Workplace or professional',
+  'Public dispute or community tension',
+  'Political, policy or election',
+  'Mis- or disinformation',
+  'Other',
+];
+const MONTH_NAMES = ['January','February','March','April','May','June',
+  'July','August','September','October','November','December'];
+
+// ── HELPERS ─────────────────────────────────────────────────
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function getRadio(name) { var el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ''; }
+
+function autoGrow(el) {
+  requestAnimationFrame(function() {
+    el.style.height = 'auto';
+    el.style.height = Math.max(el.scrollHeight, 84) + 'px';
+  });
+}
+
+// ── STATE / AREA ────────────────────────────────────────────
+function buildStateRadios() {
+  var wrap = $('q-state');
+  Object.keys(CRT_AREAS).forEach(function(s) {
+    var label = document.createElement('label');
+    label.className = 'radio-opt';
+    label.innerHTML = '<input type="radio" name="state" value="' + esc(s) + '"> ' + esc(s);
+    label.querySelector('input').addEventListener('change', onStateChange);
+    wrap.appendChild(label);
+  });
+}
+
+function onStateChange() {
+  var areas = CRT_AREAS[getRadio('state')] || [];
+  var wrap = $('q-area');
+  wrap.innerHTML = '';
+  areas.forEach(function(a) {
+    var label = document.createElement('label');
+    label.className = 'radio-opt';
+    // A state with only one team has nothing to choose: pre-select it.
+    label.innerHTML = '<input type="radio" name="area" value="' + esc(a) + '"' + (areas.length === 1 ? ' checked' : '') + '> ' + esc(a);
+    label.querySelector('input').addEventListener('change', updateProgress);
+    wrap.appendChild(label);
+  });
+  $('area-block').style.display = areas.length ? 'block' : 'none';
+  updateProgress();
+}
+
+// ── MONTH ───────────────────────────────────────────────────
+function initMonthSelects() {
+  var now  = new Date();
+  var last = new Date(now.getFullYear(), now.getMonth() - 1, 1); // default: last completed month
+  var mSel = $('rep-month'), ySel = $('rep-year');
+  MONTH_NAMES.forEach(function(m, i) {
+    var o = document.createElement('option'); o.value = m; o.textContent = m;
+    if (i === last.getMonth()) o.selected = true;
+    mSel.appendChild(o);
+  });
+  [now.getFullYear(), now.getFullYear() - 1].forEach(function(y) {
+    var o = document.createElement('option'); o.value = y; o.textContent = y;
+    if (y === last.getFullYear()) o.selected = true;
+    ySel.appendChild(o);
+  });
+  mSel.addEventListener('change', updatePeriodNote);
+  ySel.addEventListener('change', updatePeriodNote);
+  updatePeriodNote();
+}
+function updatePeriodNote() {
+  $('period-note').innerHTML = 'This report covers: <strong>' + esc($('rep-month').value) + ' ' + esc($('rep-year').value) + '</strong>';
+}
+function monthIsInFuture() {
+  var now = new Date();
+  var sel = new Date(parseInt($('rep-year').value, 10), MONTH_NAMES.indexOf($('rep-month').value), 1);
+  return sel > new Date(now.getFullYear(), now.getMonth(), 1);
+}
+
+// ── SCOPE + GATE ────────────────────────────────────────────
+function onScopeChange() {
+  var team = getRadio('scope') === 'team';
+  $('gate-label').textContent = team
+    ? 'Did your team help calm, mediate, or redirect any conflict or tension this month?'
+    : 'Did you help calm, mediate, or redirect any conflict or tension this month?';
+  // "How many team members" only makes sense for a team summary.
+  document.querySelectorAll('.members-field').forEach(function(el) { el.style.display = team ? 'block' : 'none'; });
+  document.querySelectorAll('.sit-grid').forEach(function(g) { g.classList.toggle('single', !team); });
+  updateProgress();
+}
+
+function onGateChange() {
+  var yes = getRadio('gate') === 'yes';
+  $('situations-block').classList.toggle('visible', yes);
+  // Cards are kept (just hidden) if someone flips to No and back, so a mis-click loses nothing.
+  if (yes && !document.querySelectorAll('#sit-list .sit-card').length) addSituation();
+  updateProgress();
+}
+
+// ── SITUATION CARDS ─────────────────────────────────────────
+function addSituation() {
+  var team = getRadio('scope') === 'team';
+  var typeOpts = '<option value="">Select…</option>' + INTERVENTION_TYPES.map(function(t) { return '<option value="' + esc(t) + '">' + esc(t) + '</option>'; }).join('');
+  var div = document.createElement('div');
+  div.className = 'sit-card';
+  div.innerHTML =
+    '<div class="sit-head"><span class="sit-title">Situation <span class="sit-num"></span></span>' +
+    '<button type="button" class="remove-btn" title="Remove this situation" onclick="removeSituation(this)">&#10005;</button></div>' +
+    '<div class="sit-grid' + (team ? '' : ' single') + '">' +
+      '<div><div class="sit-label">What kind of situation was it? <span class="req">*</span></div><select class="sit-type">' + typeOpts + '</select></div>' +
+      '<div class="members-field" style="display:' + (team ? 'block' : 'none') + '"><div class="sit-label">How many team members were involved?</div><input type="number" class="sit-members" min="1" placeholder="e.g. 3"></div>' +
+    '</div>' +
+    '<div class="sit-field"><div class="sit-label">What was the conflict or tension? <span class="req">*</span></div><textarea class="sit-conflict" placeholder="Briefly describe the disagreement or tension and what it was about."></textarea></div>' +
+    '<div class="sit-field"><div class="sit-label">What did you or your team do? <span class="req">*</span></div><textarea class="sit-action" placeholder="What action did you take?"></textarea></div>' +
+    '<div class="sit-field"><div class="sit-label">What happened as a result? <span class="req">*</span></div><textarea class="sit-result" placeholder="What was the outcome? If it is still unfolding, say so."></textarea></div>';
+  $('sit-list').appendChild(div);
+  div.querySelectorAll('textarea').forEach(function(ta) { ta.addEventListener('input', function() { autoGrow(this); updateProgress(); }); });
+  div.querySelectorAll('select, input').forEach(function(el) { el.addEventListener('input', updateProgress); });
+  refreshSituations();
+}
+
+function removeSituation(btn) {
+  var card = btn.closest('.sit-card');
+  if (document.querySelectorAll('#sit-list .sit-card').length > 1) card.remove();
+  refreshSituations();
+  updateProgress();
+}
+
+// Renumbers the cards and hides "remove" when only one is left.
+function refreshSituations() {
+  var cards = document.querySelectorAll('#sit-list .sit-card');
+  cards.forEach(function(card, i) {
+    card.querySelector('.sit-num').textContent = i + 1;
+    card.querySelector('.remove-btn').style.visibility = cards.length > 1 ? 'visible' : 'hidden';
+  });
+  $('count-note').textContent = cards.length === 1 ? 'This will be recorded as 1 intervention.' : 'These will be recorded as ' + cards.length + ' interventions.';
+}
+
+// ── PROGRESS ────────────────────────────────────────────────
+function updateProgress() {
+  var total = 0, done = 0;
+  function need(filled) { total++; if (filled) done++; }
+  need(!!getRadio('state'));
+  need(!!getRadio('area'));
+  need(!!getRadio('scope'));
+  need(!!$('submitter').value.trim());
+  need(!!getRadio('gate'));
+  if (getRadio('gate') === 'yes') {
+    document.querySelectorAll('#sit-list .sit-card').forEach(function(card) {
+      ['.sit-type', '.sit-conflict', '.sit-action', '.sit-result'].forEach(function(sel) { need(!!card.querySelector(sel).value.trim()); });
+    });
+  }
+  $('progress-bar').style.width = Math.round(done / total * 100) + '%';
+}
+
+// ── VALIDATION ──────────────────────────────────────────────
+function clearErrors() {
+  document.querySelectorAll('.error-msg').forEach(function(e) { e.style.display = 'none'; });
+  document.querySelectorAll('.field-error').forEach(function(e) { e.classList.remove('field-error'); });
+  $('form-errors').style.display = 'none';
+}
+function validate() {
+  clearErrors();
+  var ok = true, first = null;
+  function fail(errId, el) {
+    ok = false;
+    if (errId) $(errId).style.display = 'block';
+    if (el) el.classList.add('field-error');
+    if (!first) first = el || $(errId);
+  }
+  if (!getRadio('state')) fail('err-state');
+  if (getRadio('state') && !getRadio('area')) fail('err-area');
+  if (!getRadio('scope')) fail('err-scope');
+  if (!$('submitter').value.trim()) fail('err-name', $('submitter'));
+  if (monthIsInFuture()) fail('err-month', $('rep-month'));
+  if (!getRadio('gate')) fail('err-gate');
+  if (getRadio('gate') === 'yes') {
+    var bad = false;
+    var cards = document.querySelectorAll('#sit-list .sit-card');
+    if (!cards.length) bad = true;
+    cards.forEach(function(card) {
+      ['.sit-type', '.sit-conflict', '.sit-action', '.sit-result'].forEach(function(sel) {
+        var el = card.querySelector(sel);
+        if (!el.value.trim()) { el.classList.add('field-error'); bad = true; if (!first) first = el; }
+      });
+    });
+    if (bad) { ok = false; $('err-situations').style.display = 'block'; if (!first) first = $('err-situations'); }
+  }
+  var link = $('supporting-link').value.trim();
+  if (link && !/^https?:\/\//i.test(link)) fail('err-link', $('supporting-link'));
+  if (first && first.scrollIntoView) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  return ok;
+}
+
+// ── COLLECT + SUBMIT ────────────────────────────────────────
+function collectData() {
+  var scope = getRadio('scope');
+  var had   = getRadio('gate');
+  var rows  = [];
+  if (had === 'yes') {
+    document.querySelectorAll('#sit-list .sit-card').forEach(function(card) {
+      rows.push({
+        type:     card.querySelector('.sit-type').value,
+        // Someone reporting only for themselves is 1 person by definition.
+        members:  scope === 'team' ? (parseInt(card.querySelector('.sit-members').value, 10) || null) : 1,
+        conflict: card.querySelector('.sit-conflict').value.trim(),
+        action:   card.querySelector('.sit-action').value.trim(),
+        result:   card.querySelector('.sit-result').value.trim(),
+      });
+    });
+  }
+  return {
+    form_type:         'crt',   // tells the shared backend this is not a weekly report
+    timestamp:         new Date().toISOString(),
+    state:             getRadio('state'),
+    area:              getRadio('area'),
+    submitter:         $('submitter').value.trim(),
+    scope:             scope,
+    report_month:      $('rep-month').value,
+    report_year:       parseInt($('rep-year').value, 10),
+    had_interventions: had,
+    interventions:     JSON.stringify(rows),
+    other_notable:     $('other-notable').value.trim(),
+    supporting_link:   $('supporting-link').value.trim(),
+  };
+}
+
+async function submitForm() {
+  if (!validate()) return;
+  var btn = $('submit-btn'), spinner = $('submit-spinner'), waitMsg = $('submit-wait-msg');
+  function resetBtn() {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    waitMsg.style.display = 'none';
+    btn.childNodes[0].textContent = 'Submit Report ';
+  }
+  btn.disabled = true;
+  spinner.style.display = 'inline-block';
+  waitMsg.style.display = 'block';
+  waitMsg.textContent = 'Saving your report…';
+  btn.childNodes[0].textContent = 'Submitting… ';
+
+  var data;
+  try { data = collectData(); }
+  catch (err) {
+    resetBtn();
+    $('form-errors').style.display = 'block';
+    $('form-errors').textContent = 'Error preparing your report: ' + err.message;
+    return;
+  }
+
+  // 30-second timeout: Apps Script can be slow on a cold start.
+  var controller = new AbortController();
+  var timeout = setTimeout(function() { controller.abort(); }, 30000);
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method:  'POST',
+      mode:    'no-cors',   // Apps Script does not send CORS headers, so the reply is unreadable; failures are logged server-side
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(data),
+      signal:  controller.signal,
+    });
+    clearTimeout(timeout);
+    showSuccess(data);
+  } catch (err) {
+    clearTimeout(timeout);
+    resetBtn();
+    var box = $('form-errors');
+    box.style.display = 'block';
+    box.textContent = err.name === 'AbortError'
+      ? 'Submission timed out — the system may be starting up. Please try again in 30 seconds.'
+      : 'Submission failed — please check your connection and try again.';
+  }
+}
+
+function showSuccess(data) {
+  $('main-form').style.display = 'none';
+  document.querySelector('.progress-wrap').style.display = 'none';
+  $('success-screen').classList.add('visible');
+  var n = data.had_interventions === 'yes' ? JSON.parse(data.interventions).length : 0;
+  $('success-details').innerHTML =
+    '<strong>' + esc(data.state) + '</strong> &nbsp;&middot;&nbsp; ' + esc(data.area) + ' &nbsp;&middot;&nbsp; ' + esc(data.report_month) + ' ' + esc(data.report_year) +
+    '<br>' + (n === 0 ? 'No interventions reported this month.' : n + (n === 1 ? ' intervention' : ' interventions') + ' recorded.') +
+    '<br><br>Thank you &mdash; your report has been received.';
+}
+
+// ── INIT ────────────────────────────────────────────────────
+buildStateRadios();
+initMonthSelects();
+document.querySelectorAll('input[name="scope"]').forEach(function(r) { r.addEventListener('change', onScopeChange); });
+document.querySelectorAll('input[name="gate"]').forEach(function(r) { r.addEventListener('change', onGateChange); });
+$('submitter').addEventListener('input', updateProgress);
+$('other-notable').addEventListener('input', function() { autoGrow(this); });
+updateProgress();
+</script>
+</body>
+</html>
